@@ -70,7 +70,7 @@ class OrderItem(Base):
 
 
 if __name__ == "__main__":
-    engine = create_engine("sqlite://")
+    engine = create_engine('sqlite:///cookies.db')
     Base.metadata.create_all(engine)
 
     session = Session(engine)
