@@ -27,6 +27,31 @@ from sqlalchemy.orm import Session
 
 Base = declarative_base()
 
+"""
+CREATE TABLE "order" (
+	order_id INTEGER NOT NULL,
+	customer_name VARCHAR(30) NOT NULL,
+	order_date DATETIME NOT NULL,
+	PRIMARY KEY (order_id)
+)
+
+CREATE TABLE item (
+	item_id INTEGER NOT NULL,
+	description VARCHAR(30) NOT NULL,
+	price FLOAT NOT NULL,
+	PRIMARY KEY (item_id)
+)
+
+CREATE TABLE orderitem (
+	order_id INTEGER NOT NULL,
+	item_id INTEGER NOT NULL,
+	price FLOAT NOT NULL,
+	PRIMARY KEY (order_id, item_id),
+	FOREIGN KEY(order_id) REFERENCES "order" (order_id),
+	FOREIGN KEY(item_id) REFERENCES item (item_id)
+)
+
+"""
 
 class Order(Base):
     __tablename__ = "order"
@@ -96,18 +121,39 @@ if __name__ == "__main__":
     session.commit()
 
     # query the order, print items
-    order = session.query(Order).filter_by(customer_name="john smith").one()
+    query = session.query(Order).filter_by(customer_name="john smith")
+    print(query)
+    """
+    SELECT "order".order_id AS order_order_id, "order".customer_name AS order_customer_name, "order".order_date AS order_order_date
+    FROM "order"
+    WHERE "order".customer_name = ?
+    """
+    order = query.one()
     print(
         [
             (order_item.item.description, order_item.price)
             for order_item in order.order_items
         ]
     )
+    """
+    [('SA Mug', 6.5), ('SA Hat', 8.99), ('MySQL Crowbar', 10.99)]
+    """
 
     # print customers who bought 'MySQL Crowbar' on sale
     q = session.query(Order).join("order_items", "item")
     q = q.filter(
         and_(Item.description == "MySQL Crowbar", Item.price > OrderItem.price)
     )
+    print(q)
+    """
+    SELECT
+        "order".order_id AS order_order_id,
+        "order".customer_name AS order_customer_name,
+        "order".order_date AS order_order_date
+    FROM "order"
+    JOIN orderitem ON "order".order_id = orderitem.order_id
+    JOIN item ON item.item_id = orderitem.item_id
+    WHERE item.description = ? AND item.price > orderitem.price
+    """
 
     print([order.customer_name for order in q])
