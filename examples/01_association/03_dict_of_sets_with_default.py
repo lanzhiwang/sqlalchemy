@@ -38,6 +38,28 @@ class GenDefaultCollection(MappedCollection):
         self[key] = b = B(key)
         return b
 
+"""
+CREATE TABLE a (
+	id INTEGER NOT NULL,
+	PRIMARY KEY (id)
+)
+
+CREATE TABLE b (
+	id INTEGER NOT NULL,
+	a_id INTEGER NOT NULL,
+	"key" VARCHAR,
+	PRIMARY KEY (id),
+	FOREIGN KEY(a_id) REFERENCES a (id)
+)
+
+CREATE TABLE c (
+	id INTEGER NOT NULL,
+	b_id INTEGER NOT NULL,
+	value INTEGER,
+	PRIMARY KEY (id),
+	FOREIGN KEY(b_id) REFERENCES b (id)
+)
+"""
 
 class A(Base):
     __tablename__ = "a"
@@ -80,7 +102,7 @@ class C(Base):
 
 
 if __name__ == "__main__":
-    engine = create_engine("sqlite://", echo=True)
+    engine = create_engine('sqlite:///cookies.db', echo=True)
     Base.metadata.create_all(engine)
     session = Session(engine)
 

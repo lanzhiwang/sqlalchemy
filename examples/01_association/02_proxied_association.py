@@ -22,6 +22,31 @@ from sqlalchemy.orm import Session
 
 Base = declarative_base()
 
+"""
+CREATE TABLE "order" (
+	order_id INTEGER NOT NULL,
+	customer_name VARCHAR(30) NOT NULL,
+	order_date DATETIME NOT NULL,
+	PRIMARY KEY (order_id)
+)
+
+CREATE TABLE item (
+	item_id INTEGER NOT NULL,
+	description VARCHAR(30) NOT NULL,
+	price FLOAT NOT NULL,
+	PRIMARY KEY (item_id)
+)
+
+CREATE TABLE orderitem (
+	order_id INTEGER NOT NULL,
+	item_id INTEGER NOT NULL,
+	price FLOAT NOT NULL,
+	PRIMARY KEY (order_id, item_id),
+	FOREIGN KEY(order_id) REFERENCES "order" (order_id),
+	FOREIGN KEY(item_id) REFERENCES item (item_id)
+)
+
+"""
 
 class Order(Base):
     __tablename__ = "order"
@@ -66,7 +91,8 @@ class OrderItem(Base):
 
 
 if __name__ == "__main__":
-    engine = create_engine("sqlite://")
+    engine = create_engine('sqlite:///cookies.db')
+
     Base.metadata.create_all(engine)
 
     session = Session(engine)
